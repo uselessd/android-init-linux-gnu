@@ -38,30 +38,11 @@
 /* for ANDROID_SOCKET_* */
 #include "stringprintf.h"
 
-#include <private/android_filesystem_config.h>
-
 #include "init.h"
 #include "log.h"
 #include "util.h"
 
 #define ANDROID_SOCKET_DIR "/dev/socket"
-
-/*
- * android_name_to_id - returns the integer uid/gid associated with the given
- * name, or UINT_MAX on error.
- */
-static unsigned int android_name_to_id(const char *name)
-{
-    const struct android_id_info *info = android_ids;
-    unsigned int n;
-
-    for (n = 0; n < android_id_count; n++) {
-        if (!strcmp(info[n].name, name))
-            return info[n].aid;
-    }
-
-    return UINT_MAX;
-}
 
 static unsigned int do_decode_uid(const char *s)
 {
@@ -69,8 +50,8 @@ static unsigned int do_decode_uid(const char *s)
 
     if (!s || *s == '\0')
         return UINT_MAX;
-    if (isalpha(s[0]))
-        return android_name_to_id(s);
+    //if (isalpha(s[0]))
+        //return android_name_to_id(s);
 
     errno = 0;
     v = (unsigned int) strtoul(s, 0, 0);

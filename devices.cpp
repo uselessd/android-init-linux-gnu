@@ -36,7 +36,6 @@
 #include <selinux/android.h>
 #include <selinux/avc.h>
 
-#include <private/android_filesystem_config.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 
@@ -253,7 +252,7 @@ static void make_device(const char *path,
     setegid(gid);
     mknod(path, mode, dev);
     chown(path, uid, -1);
-    setegid(AID_ROOT);
+    setegid(0); // AID_ROOT
 
     if (secontext) {
         freecon(secontext);

@@ -48,7 +48,6 @@
 //#include <cutils/fs.h>
 #include "iosched_policy.h"
 #include "list.h"
-#include <private/android_filesystem_config.h>
 
 #include <memory>
 

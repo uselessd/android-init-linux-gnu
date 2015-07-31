@@ -22,10 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <base/stringprintf.h>
-#include <private/android_filesystem_config.h>
 #include <selinux/selinux.h>
 
+#include "stringprintf.h"
 #include "ueventd.h"
 #include "log.h"
 #include "util.h"
@@ -83,15 +82,6 @@ int ueventd_main(int argc, char **argv)
     return 0;
 }
 
-static int get_android_id(const char *id)
-{
-    unsigned int i;
-    for (i = 0; i < ARRAY_SIZE(android_ids); i++)
-        if (!strcmp(id, android_ids[i].name))
-            return android_ids[i].aid;
-    return -1;
-}
-
 void set_device_permission(int nargs, char **args)
 {
     char *name;
@@ -120,7 +110,7 @@ void set_device_permission(int nargs, char **args)
         nargs--;
     }
 
-    if (nargs != 4) {
+    if (nargs != 2) {
         ERROR("invalid line ueventd.rc line for '%s'\n", args[0]);
         return;
     }
@@ -150,21 +140,8 @@ void set_device_permission(int nargs, char **args)
         return;
     }
 
-    ret = get_android_id(args[2]);
-    if (ret < 0) {
-        ERROR("invalid uid '%s'\n", args[2]);
-        free(tmp);
-        return;
-    }
-    uid = ret;
-
-    ret = get_android_id(args[3]);
-    if (ret < 0) {
-        ERROR("invalid gid '%s'\n", args[3]);
-        free(tmp);
-        return;
-    }
-    gid = ret;
+    uid = getuid();
+    gid = getgid();
 
     add_dev_perms(name, attr, perm, uid, gid, prefix, wildcard);
     free(tmp);
