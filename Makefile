@@ -11,7 +11,7 @@ INIT_SRCS = \
        signal_handler.cpp util.cpp
 UEVENTD_SRCS = ueventd_parser.cpp ueventd.cpp
 WATCHDOGD_SRCS = watchdogd.cpp
-UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp
+UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp android_reboot.cpp
 
 INIT_OBJS = $(SRCS:.c=.o)
 

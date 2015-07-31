@@ -44,7 +44,7 @@
 #include "file.h"
 #include "stringprintf.h"
 #include "strings.h"
-#include <cutils/android_reboot.h>
+#include "android_reboot.h"
 #include <cutils/fs.h>
 #include <cutils/iosched_policy.h>
 #include "list.h"

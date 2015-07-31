@@ -24,7 +24,7 @@
 #include <unistd.h>
 
 #include "stringprintf.h"
-#include <cutils/android_reboot.h>
+#include "android_reboot.h"
 #include "list.h"
 #include <cutils/sockets.h>
 
