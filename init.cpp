@@ -46,7 +46,7 @@
 #include "strings.h"
 #include "android_reboot.h"
 #include <cutils/fs.h>
-#include <cutils/iosched_policy.h>
+#include "iosched_policy.h"
 #include "list.h"
 #include <cutils/sockets.h>
 #include <private/android_filesystem_config.h>

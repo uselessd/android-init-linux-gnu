@@ -30,7 +30,7 @@
 
 #include <cutils/misc.h>
 #include <cutils/sockets.h>
-#include <cutils/multiuser.h>
+#include "multiuser.h"
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/_system_properties.h>
