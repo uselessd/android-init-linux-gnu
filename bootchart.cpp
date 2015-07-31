@@ -33,7 +33,7 @@
 #include <memory>
 #include <string>
 
-#include <base/file.h>
+#include "file.h"
 
 #define LOG_ROOT        "/data/bootchart"
 #define LOG_STAT        LOG_ROOT"/proc_stat.log"

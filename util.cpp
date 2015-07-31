@@ -32,8 +32,8 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include <base/file.h>
-#include <base/strings.h>
+#include "file.h"
+#include "strings.h"
 
 /* for ANDROID_SOCKET_* */
 #include <cutils/sockets.h>

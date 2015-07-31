@@ -1,7 +1,7 @@
 CC=g++
 PROGS=init ueventd watchdogd
 CFLAGS=-Wall -Wextra \
-    -Wno-unused-parameter \
+    -std=c++11 -Wno-unused-parameter \
     -Werror
 LDLIBS=-lselinux
     
@@ -11,7 +11,7 @@ INIT_SRCS = \
        signal_handler.cpp util.cpp
 UEVENTD_SRCS = ueventd_parser.cpp ueventd.cpp
 WATCHDOGD_SRCS = watchdogd.cpp
-UTIL_SRCS = klog.cpp stringprintf.cpp
+UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp
 
 INIT_OBJS = $(SRCS:.c=.o)
 

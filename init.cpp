@@ -41,9 +41,9 @@
 #include <selinux/label.h>
 #include <selinux/android.h>
 
-#include <base/file.h>
-#include <base/stringprintf.h>
-#include <base/strings.h>
+#include "file.h"
+#include "stringprintf.h"
+#include "strings.h"
 #include <cutils/android_reboot.h>
 #include <cutils/fs.h>
 #include <cutils/iosched_policy.h>
