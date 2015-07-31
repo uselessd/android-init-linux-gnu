@@ -867,7 +867,7 @@ static void process_kernel_cmdline() {
 
 static int queue_property_triggers_action(int nargs, char **args)
 {
-    queue_all_property_triggers();
+    //queue_all_property_triggers();
     /* enable property triggers */
     property_triggers_enabled = 1;
     return 0;

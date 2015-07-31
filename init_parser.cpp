@@ -26,6 +26,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <memory>
+
 #include "init.h"
 #include "parser.h"
 #include "init_parser.h"
@@ -33,7 +35,7 @@
 #include "util.h"
 
 #include "stringprintf.h"
-#include <cutils/iosched_policy.h>
+#include "iosched_policy.h"
 #include "list.h"
 
 static list_declare(service_list);
@@ -215,80 +217,6 @@ static int lookup_keyword(const char *s)
 
 static void parse_line_no_op(struct parse_state*, int, char**) {
 }
-
-/*
-int expand_props(const char *src, std::string *dst) {
-    const char *src_ptr = src;
-
-    if (!src || !dst) {
-        return -1;
-    }
-
-    /* - variables can either be $x.y or ${x.y}, in case they are only part
-     *   of the string.
-     * - will accept $$ as a literal $.
-     * - no nested property expansion, i.e. ${foo.${bar}} is not supported,
-     *   bad things will happen
-     */
-   /* while (*src_ptr) {
-        const char *c;
-
-        c = strchr(src_ptr, '$');
-        if (!c) {
-            dst->append(src_ptr);
-            break;
-        }
-
-        dst->append(src_ptr, c);
-        c++;
-
-        if (*c == '$') {
-            dst->push_back(*(c++));
-            src_ptr = c;
-            continue;
-        } else if (*c == '\0') {
-            break;
-        }
-
-        std::string prop_name;
-        if (*c == '{') {
-            c++;
-            const char* end = strchr(c, '}');
-            if (!end) {
-                // failed to find closing brace, abort.
-                ERROR("unexpected end of string in '%s', looking for }\n", src);
-                goto err;
-            }
-            prop_name = std::string(c, end);
-            c = end + 1;
-        } else {
-            prop_name = c;
-            ERROR("using deprecated syntax for specifying property '%s', use ${name} instead\n",
-                  c);
-            c += prop_name.size();
-        }
-
-        if (prop_name.empty()) {
-            ERROR("invalid zero-length prop name in '%s'\n", src);
-            goto err;
-        }
-
-        std::string prop_val = property_get(prop_name.c_str());
-        if (prop_val.empty()) {
-            ERROR("property '%s' doesn't exist while expanding '%s'\n",
-                  prop_name.c_str(), src);
-            goto err;
-        }
-
-        dst->append(prop_val);
-        src_ptr = c;
-        continue;
-    }
-
-    return 0;
-err:
-    return -1;
-}*/
 
 static void parse_import(struct parse_state *state, int nargs, char **args)
 {
@@ -544,62 +472,6 @@ void action_for_each_trigger(const char *trigger,
         }
     }
 }
-
-/*
-void queue_property_triggers(const char *name, const char *value)
-{
-    struct listnode *node, *node2;
-    struct action *act;
-    struct trigger *cur_trigger;
-    bool match;
-    int name_length;
-
-    list_for_each(node, &action_list) {
-        act = node_to_item(node, struct action, alist);
-            match = !name;
-        list_for_each(node2, &act->triggers) {
-            cur_trigger = node_to_item(node2, struct trigger, nlist);
-            if (!strncmp(cur_trigger->name, "property:", strlen("property:"))) {
-                const char *test = cur_trigger->name + strlen("property:");
-                if (!match) {
-                    name_length = strlen(name);
-                    if (!strncmp(name, test, name_length) &&
-                        test[name_length] == '=' &&
-                        (!strcmp(test + name_length + 1, value) ||
-                        !strcmp(test + name_length + 1, "*"))) {
-                        match = true;
-                        continue;
-                    }
-                } else {
-                     const char* equals = strchr(test, '=');
-                     if (equals) {
-                         int length = equals - test;
-                         if (length <= PROP_NAME_MAX) {
-                             std::string prop_name(test, length);
-                             std::string value = property_get(prop_name.c_str());
-
-                             /* does the property exist, and match the trigger value? */
-                             /*if (!value.empty() && (!strcmp(equals + 1, value.c_str()) ||
-                                !strcmp(equals + 1, "*"))) {
-                                 continue;
-                             }
-                         }
-                     }
-                 }
-             }
-             match = false;
-             break;
-        }
-        if (match) {
-            action_add_queue_tail(act);
-        }
-    }
-}
-
-void queue_all_property_triggers()
-{
-    queue_property_triggers(NULL, NULL);
-}*/
 
 void queue_builtin_action(int (*func)(int nargs, char **args), const char *name)
 {

@@ -31,7 +31,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <linux/loop.h>
-#include <ext4_crypt_init_extensions.h>
 
 #include <selinux/selinux.h>
 #include <selinux/label.h>
