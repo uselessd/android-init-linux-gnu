@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-Wall -Wextra -Werror -Wno-unused-parameter \
+CFLAGS=-Wall -Wextra -Wno-unused-parameter -Wno-write-strings \
 		 -std=c++11
-#LDLIBS=-lselinux
+LDLIBS=-lpthread -lrt
     
 INIT_SRCS = \
        bootchart.cpp builtins.cpp devices.cpp init.cpp init_parser.cpp \
@@ -9,7 +9,7 @@ INIT_SRCS = \
 UEVENTD_SRCS = ueventd_parser.cpp ueventd.cpp
 UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp android_reboot.cpp \
 				partition_utils.cpp iosched_policy.cpp multiuser.cpp uevent.cpp \
-				fs_mgr.cpp fs_mgr_fstab.cpp strlcat.cpp
+				fs_mgr.cpp fs_mgr_fstab.cpp strlcat.cpp logwrap.cpp
 
 INIT_OBJS = $(SRCS:.c=.o)
 
