@@ -17,7 +17,7 @@
 #ifndef _INIT_LOG_H_
 #define _INIT_LOG_H_
 
-#include <cutils/klog.h>
+#include "klog.h"
 
 #define ERROR(x...)   init_klog_write(KLOG_ERROR_LEVEL, x)
 #define WARNING(x...) init_klog_write(KLOG_WARNING_LEVEL, x)
@@ -26,7 +26,7 @@
 #define DEBUG(x...)   init_klog_write(KLOG_DEBUG_LEVEL, x)
 #define VERBOSE(x...) init_klog_write(KLOG_DEBUG_LEVEL, x)
 
-void init_klog_write(int level, const char* fmt, ...) __printflike(2, 3);
-int selinux_klog_callback(int level, const char* fmt, ...) __printflike(2, 3);
+void init_klog_write(int level, const char* fmt, ...);
+int selinux_klog_callback(int level, const char* fmt, ...);
 
 #endif
