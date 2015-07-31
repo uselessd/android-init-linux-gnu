@@ -432,26 +432,6 @@ exit_success:
 
 }
 
-static int wipe_data_via_recovery()
-{
-    mkdir("/cache/recovery", 0700);
-    int fd = open("/cache/recovery/command", O_RDWR|O_CREAT|O_TRUNC|O_CLOEXEC, 0600);
-    if (fd >= 0) {
-        write(fd, "--wipe_data\n", strlen("--wipe_data\n") + 1);
-        write(fd, "--reason=wipe_data_via_recovery\n", strlen("--reason=wipe_data_via_recovery\n") + 1);
-        close(fd);
-    } else {
-        ERROR("could not open /cache/recovery/command\n");
-        return -1;
-    }
-    android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
-    while (1) { pause(); }  // never reached
-}
-
-/*
- * This function might request a reboot, in which case it will
- * not return.
- */
 int do_mount_all(int nargs, char **args)
 {
     pid_t pid;
@@ -498,41 +478,7 @@ int do_mount_all(int nargs, char **args)
         /* fork failed, return an error */
         return -1;
     }
-
-    /*if (ret == FS_MGR_MNTALL_DEV_NEEDS_ENCRYPTION) {
-        property_set("vold.decrypt", "trigger_encryption");
-    } else if (ret == FS_MGR_MNTALL_DEV_MIGHT_BE_ENCRYPTED) {
-        property_set("ro.crypto.state", "encrypted");
-        property_set("ro.crypto.type", "block");
-        property_set("vold.decrypt", "trigger_default_encryption");
-    } else if (ret == FS_MGR_MNTALL_DEV_NOT_ENCRYPTED) {
-        property_set("ro.crypto.state", "unencrypted");
-        /* If fs_mgr determined this is an unencrypted device, then trigger
-         * that action.
-         */
-       /* action_for_each_trigger("nonencrypted", action_add_queue_tail);
-    } else if (ret == FS_MGR_MNTALL_DEV_NEEDS_RECOVERY) {
-        /* Setup a wipe via recovery, and reboot into recovery */
-        /*ERROR("fs_mgr_mount_all suggested recovery, so wiping data via recovery.\n");
-        ret = wipe_data_via_recovery();
-        /* If reboot worked, there is no return. */
-    /*} else if (ret == FS_MGR_MNTALL_DEV_DEFAULT_FILE_ENCRYPTED) {
-        if (e4crypt_install_keyring()) {
-            return -1;
-        }
-        property_set("ro.crypto.state", "encrypted");
-        property_set("ro.crypto.type", "file");
-
-        // Although encrypted, we have device key, so we do not need to
-        // do anything different from the nonencrypted case.
-        action_for_each_trigger("nonencrypted", action_add_queue_tail);
-    } else if (ret == FS_MGR_MNTALL_DEV_NON_DEFAULT_FILE_ENCRYPTED) {
-        if (e4crypt_install_keyring()) {
-            return -1;
-        }
-        property_set("ro.crypto.state", "encrypted");
-        property_set("ro.crypto.type", "file");
-        property_set("vold.decrypt", "trigger_restart_min_framework");*/
+    
     if (ret > 0) {
         ERROR("fs_mgr_mount_all returned unexpected error %d\n", ret);
     }
@@ -552,15 +498,6 @@ int do_swapon_all(int nargs, char **args)
 
     return ret;
 }
-
-/*
-int do_setprop(int nargs, char **args)
-{
-    const char *name = args[1];
-    const char *value = args[2];
-    property_set(name, value);
-    return 0;
-}*/
 
 int do_setrlimit(int nargs, char **args)
 {
@@ -678,16 +615,6 @@ int do_verity_load_state(int nargs, char **args) {
     }
     return rc;
 }
-
-/*
-static void verity_update_property(fstab_rec *fstab, const char *mount_point, int mode, int status) {
-    property_set(android::base::StringPrintf("partition.%s.verified", mount_point).c_str(),
-                 android::base::StringPrintf("%d", mode).c_str());
-}
-
-int do_verity_update_state(int nargs, char** args) {
-    return fs_mgr_update_verity_state(verity_update_property);
-}*/
 
 int do_write(int nargs, char **args)
 {
@@ -855,32 +782,3 @@ int do_wait(int nargs, char **args)
     } else
         return -1;
 }
-
-/*
- * Callback to make a directory from the ext4 code
- */
-/*
-static int do_installkeys_ensure_dir_exists(const char* dir)
-{
-    if (make_dir(dir, 0700) && errno != EEXIST) {
-        return -1;
-    }
-
-    return 0;
-}
-
-int do_installkey(int nargs, char **args)
-{
-    if (nargs != 2) {
-        return -1;
-    }
-
-    std::string prop_value = property_get("ro.crypto.type");
-    if (prop_value != "file") {
-        return 0;
-    }
-
-    return e4crypt_create_device_key(args[1],
-                                     do_installkeys_ensure_dir_exists);
-}
-*/
