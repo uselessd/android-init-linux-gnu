@@ -31,7 +31,6 @@
 #include "util.h"
 #include "devices.h"
 #include "ueventd_parser.h"
-#include "property_service.h"
 
 int ueventd_main(int argc, char **argv)
 {
@@ -59,10 +58,10 @@ int ueventd_main(int argc, char **argv)
     cb.func_log = selinux_klog_callback;
     selinux_set_callback(SELINUX_CB_LOG, cb);
 
-    std::string hardware = property_get("ro.hardware");
+    //std::string hardware = property_get("ro.hardware");
 
     ueventd_parse_config_file("/ueventd.rc");
-    ueventd_parse_config_file(android::base::StringPrintf("/ueventd.%s.rc", hardware.c_str()).c_str());
+    //ueventd_parse_config_file(android::base::StringPrintf("/ueventd.%s.rc", hardware.c_str()).c_str());
 
     device_init();
 

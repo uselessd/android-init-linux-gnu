@@ -45,7 +45,6 @@
 
 #include "init.h"
 #include "keywords.h"
-#include "property_service.h"
 #include "devices.h"
 #include "init_parser.h"
 #include "util.h"
@@ -502,7 +501,7 @@ int do_mount_all(int nargs, char **args)
         return -1;
     }
 
-    if (ret == FS_MGR_MNTALL_DEV_NEEDS_ENCRYPTION) {
+    /*if (ret == FS_MGR_MNTALL_DEV_NEEDS_ENCRYPTION) {
         property_set("vold.decrypt", "trigger_encryption");
     } else if (ret == FS_MGR_MNTALL_DEV_MIGHT_BE_ENCRYPTED) {
         property_set("ro.crypto.state", "encrypted");
@@ -513,13 +512,13 @@ int do_mount_all(int nargs, char **args)
         /* If fs_mgr determined this is an unencrypted device, then trigger
          * that action.
          */
-        action_for_each_trigger("nonencrypted", action_add_queue_tail);
+       /* action_for_each_trigger("nonencrypted", action_add_queue_tail);
     } else if (ret == FS_MGR_MNTALL_DEV_NEEDS_RECOVERY) {
         /* Setup a wipe via recovery, and reboot into recovery */
-        ERROR("fs_mgr_mount_all suggested recovery, so wiping data via recovery.\n");
+        /*ERROR("fs_mgr_mount_all suggested recovery, so wiping data via recovery.\n");
         ret = wipe_data_via_recovery();
         /* If reboot worked, there is no return. */
-    } else if (ret == FS_MGR_MNTALL_DEV_DEFAULT_FILE_ENCRYPTED) {
+    /*} else if (ret == FS_MGR_MNTALL_DEV_DEFAULT_FILE_ENCRYPTED) {
         if (e4crypt_install_keyring()) {
             return -1;
         }
@@ -535,8 +534,8 @@ int do_mount_all(int nargs, char **args)
         }
         property_set("ro.crypto.state", "encrypted");
         property_set("ro.crypto.type", "file");
-        property_set("vold.decrypt", "trigger_restart_min_framework");
-    } else if (ret > 0) {
+        property_set("vold.decrypt", "trigger_restart_min_framework");*/
+    if (ret > 0) {
         ERROR("fs_mgr_mount_all returned unexpected error %d\n", ret);
     }
     /* else ... < 0: error */
@@ -556,13 +555,14 @@ int do_swapon_all(int nargs, char **args)
     return ret;
 }
 
+/*
 int do_setprop(int nargs, char **args)
 {
     const char *name = args[1];
     const char *value = args[2];
     property_set(name, value);
     return 0;
-}
+}*/
 
 int do_setrlimit(int nargs, char **args)
 {
@@ -681,6 +681,7 @@ int do_verity_load_state(int nargs, char **args) {
     return rc;
 }
 
+/*
 static void verity_update_property(fstab_rec *fstab, const char *mount_point, int mode, int status) {
     property_set(android::base::StringPrintf("partition.%s.verified", mount_point).c_str(),
                  android::base::StringPrintf("%d", mode).c_str());
@@ -688,7 +689,7 @@ static void verity_update_property(fstab_rec *fstab, const char *mount_point, in
 
 int do_verity_update_state(int nargs, char** args) {
     return fs_mgr_update_verity_state(verity_update_property);
-}
+}*/
 
 int do_write(int nargs, char **args)
 {
@@ -860,6 +861,7 @@ int do_wait(int nargs, char **args)
 /*
  * Callback to make a directory from the ext4 code
  */
+/*
 static int do_installkeys_ensure_dir_exists(const char* dir)
 {
     if (make_dir(dir, 0700) && errno != EEXIST) {
@@ -883,3 +885,4 @@ int do_installkey(int nargs, char **args)
     return e4crypt_create_device_key(args[1],
                                      do_installkeys_ensure_dir_exists);
 }
+*/

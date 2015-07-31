@@ -55,7 +55,6 @@
 #include "devices.h"
 #include "init.h"
 #include "log.h"
-#include "property_service.h"
 #include "bootchart.h"
 #include "signal_handler.h"
 #include "keychords.h"
@@ -98,10 +97,10 @@ void register_epoll_handler(int fd, void (*fn)()) {
 }
 
 void service::NotifyStateChange(const char* new_state) {
-    if (!properties_initialized()) {
+    /*if (!properties_initialized()) {
         // If properties aren't available yet, we can't set them.
         return;
-    }
+    } */
 
     if ((flags & SVC_EXEC) != 0) {
         // 'exec' commands don't have properties tracking their state.
@@ -272,11 +271,11 @@ void service_start(struct service *svc, const char *dynamic_args)
         int fd, sz;
 
         umask(077);
-        if (properties_initialized()) {
+        /*if (properties_initialized()) {
             get_property_workspace(&fd, &sz);
             snprintf(tmp, sizeof(tmp), "%d,%d", dup(fd), sz);
             add_environment("ANDROID_PROPERTY_WORKSPACE", tmp);
-        }
+        }*/
 
         for (ei = svc->envvars; ei; ei = ei->next)
             add_environment(ei->name, ei->value);
@@ -1010,7 +1009,7 @@ int main(int argc, char** argv) {
         // Indicate that booting is in progress to background fw loaders, etc.
         close(open("/dev/.booting", O_WRONLY | O_CREAT | O_CLOEXEC, 0000));
 
-        property_init();
+        //property_init();
 
         // If arguments are passed both on the command line and in DT,
         // properties set in DT always have priority over the command-line ones.
@@ -1057,8 +1056,8 @@ int main(int argc, char** argv) {
 
     signal_handler_init();
 
-    property_load_boot_defaults();
-    start_property_service();
+    //property_load_boot_defaults();
+    //start_property_service();
 
     init_parse_config("/init.rc");
 

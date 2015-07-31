@@ -25,7 +25,6 @@
 
 #include "init.h"
 #include "log.h"
-#include "property_service.h"
 
 static struct input_keychord *keychords = 0;
 static int keychords_count = 0;
@@ -74,7 +73,7 @@ static void handle_keychord() {
     }
 
     // Only handle keychords if adb is enabled.
-    std::string adb_enabled = property_get("init.svc.adbd");
+    /*std::string adb_enabled = property_get("init.svc.adbd");
     if (adb_enabled == "running") {
         svc = service_find_by_keychord(id);
         if (svc) {
@@ -83,7 +82,7 @@ static void handle_keychord() {
         } else {
             ERROR("service for keychord %d not found\n", id);
         }
-    }
+    }*/
 }
 
 void keychord_init() {

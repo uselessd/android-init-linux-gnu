@@ -41,7 +41,7 @@
 #include <sys/wait.h>
 
 #include "list.h"
-#include <cutils/uevent.h>
+#include "uevent.h"
 
 #include "devices.h"
 #include "ueventd_parser.h"

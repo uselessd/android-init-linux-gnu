@@ -30,7 +30,6 @@
 #include "parser.h"
 #include "init_parser.h"
 #include "log.h"
-#include "property_service.h"
 #include "util.h"
 
 #include "stringprintf.h"
@@ -152,15 +151,15 @@ static int lookup_keyword(const char *s)
         if (!strcmp(s, "fup")) return K_ifup;
         if (!strcmp(s, "nsmod")) return K_insmod;
         if (!strcmp(s, "mport")) return K_import;
-        if (!strcmp(s, "nstallkey")) return K_installkey;
+        //if (!strcmp(s, "nstallkey")) return K_installkey;
         break;
     case 'k':
         if (!strcmp(s, "eycodes")) return K_keycodes;
         break;
     case 'l':
         if (!strcmp(s, "oglevel")) return K_loglevel;
-        if (!strcmp(s, "oad_persist_props")) return K_load_persist_props;
-        if (!strcmp(s, "oad_all_props")) return K_load_all_props;
+        //if (!strcmp(s, "oad_persist_props")) return K_load_persist_props;
+        //if (!strcmp(s, "oad_all_props")) return K_load_all_props;
         break;
     case 'm':
         if (!strcmp(s, "kdir")) return K_mkdir;
@@ -186,7 +185,7 @@ static int lookup_keyword(const char *s)
         if (!strcmp(s, "eclabel")) return K_seclabel;
         if (!strcmp(s, "ervice")) return K_service;
         if (!strcmp(s, "etenv")) return K_setenv;
-        if (!strcmp(s, "etprop")) return K_setprop;
+        //if (!strcmp(s, "etprop")) return K_setprop;
         if (!strcmp(s, "etrlimit")) return K_setrlimit;
         if (!strcmp(s, "ocket")) return K_socket;
         if (!strcmp(s, "tart")) return K_start;
@@ -203,7 +202,7 @@ static int lookup_keyword(const char *s)
         break;
     case 'v':
         if (!strcmp(s, "erity_load_state")) return K_verity_load_state;
-        if (!strcmp(s, "erity_update_state")) return K_verity_update_state;
+        //if (!strcmp(s, "erity_update_state")) return K_verity_update_state;
         break;
     case 'w':
         if (!strcmp(s, "rite")) return K_write;
@@ -217,6 +216,7 @@ static int lookup_keyword(const char *s)
 static void parse_line_no_op(struct parse_state*, int, char**) {
 }
 
+/*
 int expand_props(const char *src, std::string *dst) {
     const char *src_ptr = src;
 
@@ -230,7 +230,7 @@ int expand_props(const char *src, std::string *dst) {
      * - no nested property expansion, i.e. ${foo.${bar}} is not supported,
      *   bad things will happen
      */
-    while (*src_ptr) {
+   /* while (*src_ptr) {
         const char *c;
 
         c = strchr(src_ptr, '$');
@@ -288,7 +288,7 @@ int expand_props(const char *src, std::string *dst) {
     return 0;
 err:
     return -1;
-}
+}*/
 
 static void parse_import(struct parse_state *state, int nargs, char **args)
 {
@@ -298,12 +298,12 @@ static void parse_import(struct parse_state *state, int nargs, char **args)
     }
 
     std::string conf_file;
-    int ret = expand_props(args[1], &conf_file);
+    /*int ret = expand_props(args[1], &conf_file);
     if (ret) {
         ERROR("error while handling import on line '%d' in '%s'\n",
               state->line, state->filename);
         return;
-    }
+    }*/
 
     struct import* import = (struct import*) calloc(1, sizeof(struct import));
     import->filename = strdup(conf_file.c_str());
@@ -545,7 +545,7 @@ void action_for_each_trigger(const char *trigger,
     }
 }
 
-
+/*
 void queue_property_triggers(const char *name, const char *value)
 {
     struct listnode *node, *node2;
@@ -579,7 +579,7 @@ void queue_property_triggers(const char *name, const char *value)
                              std::string value = property_get(prop_name.c_str());
 
                              /* does the property exist, and match the trigger value? */
-                             if (!value.empty() && (!strcmp(equals + 1, value.c_str()) ||
+                             /*if (!value.empty() && (!strcmp(equals + 1, value.c_str()) ||
                                 !strcmp(equals + 1, "*"))) {
                                  continue;
                              }
@@ -599,7 +599,7 @@ void queue_property_triggers(const char *name, const char *value)
 void queue_all_property_triggers()
 {
     queue_property_triggers(NULL, NULL);
-}
+}*/
 
 void queue_builtin_action(int (*func)(int nargs, char **args), const char *name)
 {

@@ -17,7 +17,6 @@
 #include "bootchart.h"
 #include "keywords.h"
 #include "log.h"
-#include "property_service.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -77,10 +76,11 @@ static void log_header() {
         return;
     }
 
+/*
     std::string fingerprint = property_get("ro.build.fingerprint");
     if (fingerprint.empty()) {
         return;
-    }
+    }*/
 
     std::string kernel_cmdline;
     android::base::ReadFileToString("/proc/cmdline", &kernel_cmdline);
@@ -92,7 +92,7 @@ static void log_header() {
     fprintf(out, "version = Android init 0.8 " __TIME__  "\n");
     fprintf(out, "title = Boot chart for Android (%s)\n", date);
     fprintf(out, "system.uname = %s %s %s %s\n", uts.sysname, uts.release, uts.version, uts.machine);
-    fprintf(out, "system.release = %s\n", fingerprint.c_str());
+    //fprintf(out, "system.release = %s\n", fingerprint.c_str());
     // TODO: use /proc/cpuinfo "model name" line for x86, "Processor" line for arm.
     fprintf(out, "system.cpu = %s\n", uts.machine);
     fprintf(out, "system.kernel.options = %s\n", kernel_cmdline.c_str());
