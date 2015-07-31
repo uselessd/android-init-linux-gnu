@@ -232,7 +232,6 @@ int do_ifup(int nargs, char **args)
     return __ifupdown(args[1], 1);
 }
 
-
 static int do_insmod_inner(int nargs, char **args, int opt_len)
 {
     char options[opt_len + 1];

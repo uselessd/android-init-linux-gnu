@@ -8,7 +8,8 @@ INIT_SRCS = \
        log.cpp parser.cpp signal_handler.cpp util.cpp
 UEVENTD_SRCS = ueventd_parser.cpp ueventd.cpp
 UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp android_reboot.cpp \
-				partition_utils.cpp iosched_policy.cpp multiuser.cpp uevent.cpp
+				partition_utils.cpp iosched_policy.cpp multiuser.cpp uevent.cpp \
+				fs_mgr.cpp fs_mgr_fstab.cpp strlcat.cpp
 
 INIT_OBJS = $(SRCS:.c=.o)
 
