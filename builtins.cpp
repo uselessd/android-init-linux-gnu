@@ -39,7 +39,7 @@
 #include "stringprintf.h"
 #include "partition_utils.h"
 #include "android_reboot.h"
-#include <logwrap/logwrap.h>
+#include "logwrap.h"
 
 #include "init.h"
 #include "keywords.h"

@@ -30,11 +30,90 @@
 #include <sys/swap.h>
 #include <dirent.h>
 
-#include <logwrap/logwrap.h>
+#include "logwrap.h"
+#include "util.h"
+#include "strlcat.h"
 
 #include "fs_mgr_priv.h"
 
+#define ZRAM_CONF_DEV "/sys/block/zram0/disksize"
 #define MKSWAP_BIN "/sbin/mkswap"
+#define E2FSCK_BIN "/sbin/e2fsck"
+#define FSCK_LOG_FILE "/var/log/android-e2fsck"
+
+static void check_fs(char *blk_device, char *fs_type, char *target)
+{
+    int status;
+    int ret;
+    long tmpmnt_flags = MS_NOATIME | MS_NOEXEC | MS_NOSUID;
+    char tmpmnt_opts[64] = "errors=remount-ro";
+    char *e2fsck_argv[] = {
+        E2FSCK_BIN,
+        "-y",
+        blk_device
+    };
+
+    /* Check for the types of filesystems we know how to check */
+    if (!strcmp(fs_type, "ext2") || !strcmp(fs_type, "ext3") || !strcmp(fs_type, "ext4")) {
+        /*
+         * First try to mount and unmount the filesystem.  We do this because
+         * the kernel is more efficient than e2fsck in running the journal and
+         * processing orphaned inodes, and on at least one device with a
+         * performance issue in the emmc firmware, it can take e2fsck 2.5 minutes
+         * to do what the kernel does in about a second.
+         *
+         * After mounting and unmounting the filesystem, run e2fsck, and if an
+         * error is recorded in the filesystem superblock, e2fsck will do a full
+         * check.  Otherwise, it does nothing.  If the kernel cannot mount the
+         * filesytsem due to an error, e2fsck is still run to do a full check
+         * fix the filesystem.
+         */
+        errno = 0;
+        if (!strcmp(fs_type, "ext4")) {
+            // This option is only valid with ext4
+            strlcat(tmpmnt_opts, ",nomblk_io_submit", sizeof(tmpmnt_opts));
+        }
+        ret = mount(blk_device, target, fs_type, tmpmnt_flags, tmpmnt_opts);
+        INFO("%s(): mount(%s,%s,%s)=%d: %s\n",
+             __func__, blk_device, target, fs_type, ret, strerror(errno));
+        if (!ret) {
+            int i;
+            for (i = 0; i < 5; i++) {
+                // Try to umount 5 times before continuing on.
+                // Should we try rebooting if all attempts fail?
+                int result = umount(target);
+                if (result == 0) {
+                    INFO("%s(): unmount(%s) succeeded\n", __func__, target);
+                    break;
+                }
+                ERROR("%s(): umount(%s)=%d: %s\n", __func__, target, result, strerror(errno));
+                sleep(1);
+            }
+        }
+
+        /*
+         * Some system images do not have e2fsck for licensing reasons
+         * (e.g. recent SDK system images). Detect these and skip the check.
+         */
+        if (access(E2FSCK_BIN, X_OK)) {
+            INFO("Not running %s on %s (executable not in system image)\n",
+                 E2FSCK_BIN, blk_device);
+        } else {
+            INFO("Running %s on %s\n", E2FSCK_BIN, blk_device);
+
+            ret = android_fork_execvp_ext(ARRAY_SIZE(e2fsck_argv), e2fsck_argv,
+                                        &status, true, LOG_KLOG | LOG_FILE,
+                                        true, FSCK_LOG_FILE);
+
+            if (ret < 0) {
+                /* No need to check for error in fork, we can't really handle it now */
+                ERROR("Failed trying to run %s\n", E2FSCK_BIN);
+            }
+        }
+     }
+
+    return;
+}
 
 static int mount_with_alternatives(struct fstab *fstab, int start_idx, int *end_idx, int *attempted_idx)
 {
@@ -69,7 +148,8 @@ static int mount_with_alternatives(struct fstab *fstab, int start_idx, int *end_
                 check_fs(fstab->recs[i].blk_device, fstab->recs[i].fs_type,
                          fstab->recs[i].mount_point);
             }
-            if (!__mount(fstab->recs[i].blk_device, fstab->recs[i].mount_point, &fstab->recs[i])) {
+            if (!mount(fstab->recs[i].blk_device, fstab->recs[i].mount_point, fstab->recs[i].fs_type,
+                       fstab->recs[i].flags, fstab->recs[i].fs_options)) {
                 *attempted_idx = i;
                 mounted = 1;
                 if (i != start_idx) {
@@ -124,17 +204,6 @@ int fs_mgr_mount_all(struct fstab *fstab)
             !strcmp(fstab->recs[i].fs_type, "emmc") ||
             !strcmp(fstab->recs[i].fs_type, "mtd")) {
             continue;
-        }
-
-        /* Translate LABEL= file system labels into block devices */
-        if (!strcmp(fstab->recs[i].fs_type, "ext2") ||
-            !strcmp(fstab->recs[i].fs_type, "ext3") ||
-            !strcmp(fstab->recs[i].fs_type, "ext4")) {
-            int tret = translate_ext_labels(&fstab->recs[i]);
-            if (tret < 0) {
-                ERROR("Could not translate label to block device\n");
-                continue;
-            }
         }
 
         if (fstab->recs[i].fs_mgr_flags & MF_WAIT) {
@@ -276,81 +345,5 @@ int fs_mgr_swapon_all(struct fstab *fstab)
         }
     }
 
-    return ret;
-}
-
-static int translate_ext_labels(struct fstab_rec *rec)
-{
-    DIR *blockdir = NULL;
-    struct dirent *ent;
-    char *label;
-    size_t label_len;
-    int ret = -1;
-
-    if (strncmp(rec->blk_device, "LABEL=", 6))
-        return 0;
-
-    label = rec->blk_device + 6;
-    label_len = strlen(label);
-
-    if (label_len > 16) {
-        ERROR("FS label is longer than allowed by filesystem\n");
-        goto out;
-    }
-
-    blockdir = opendir("/dev/block");
-    if (!blockdir) {
-        ERROR("couldn't open /dev/block\n");
-        goto out;
-    }
-
-    while ((ent = readdir(blockdir))) {
-        int fd;
-        char super_buf[1024];
-        struct ext4_super_block *sb;
-
-        if (ent->d_type != DT_BLK)
-            continue;
-
-        fd = openat(dirfd(blockdir), ent->d_name, O_RDONLY);
-        if (fd < 0) {
-            ERROR("Cannot open block device /dev/block/%s\n", ent->d_name);
-            goto out;
-        }
-
-        if (TEMP_FAILURE_RETRY(lseek(fd, 1024, SEEK_SET)) < 0 ||
-            TEMP_FAILURE_RETRY(read(fd, super_buf, 1024)) != 1024) {
-            /* Probably a loopback device or something else without a readable
-             * superblock.
-             */
-            close(fd);
-            continue;
-        }
-
-        sb = (struct ext4_super_block *)super_buf;
-        if (sb->s_magic != EXT4_SUPER_MAGIC) {
-            INFO("/dev/block/%s not ext{234}\n", ent->d_name);
-            continue;
-        }
-
-        if (!strncmp(label, sb->s_volume_name, label_len)) {
-            char *new_blk_device;
-
-            if (asprintf(&new_blk_device, "/dev/block/%s", ent->d_name) < 0) {
-                ERROR("Could not allocate block device string\n");
-                goto out;
-            }
-
-            INFO("resolved label %s to %s\n", rec->blk_device, new_blk_device);
-
-            free(rec->blk_device);
-            rec->blk_device = new_blk_device;
-            ret = 0;
-            break;
-        }
-    }
-
-out:
-    closedir(blockdir);
     return ret;
 }
