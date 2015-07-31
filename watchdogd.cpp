@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include <linux/watchdog.h>
+#include <sys/ioctl.h>
 
 #include "log.h"
 #include "util.h"
