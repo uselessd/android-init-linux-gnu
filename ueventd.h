@@ -17,7 +17,7 @@
 #ifndef _INIT_UEVENTD_H_
 #define _INIT_UEVENTD_H_
 
-#include <cutils/list.h>
+#include "list.h"
 #include <sys/types.h>
 
 enum devname_src_t {

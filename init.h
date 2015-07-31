@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <cutils/list.h>
+#include "list.h"
 #include <cutils/iosched_policy.h>
 
 struct command

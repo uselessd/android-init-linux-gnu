@@ -40,7 +40,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 
-#include <cutils/list.h>
+#include "list.h"
 #include <cutils/uevent.h>
 
 #include "devices.h"

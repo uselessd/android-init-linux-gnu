@@ -33,9 +33,9 @@
 #include "property_service.h"
 #include "util.h"
 
-#include <base/stringprintf.h>
+#include "stringprintf.h"
 #include <cutils/iosched_policy.h>
-#include <cutils/list.h>
+#include "list.h"
 
 static list_declare(service_list);
 static list_declare(action_list);
