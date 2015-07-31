@@ -57,7 +57,6 @@
 #include "log.h"
 #include "bootchart.h"
 #include "signal_handler.h"
-#include "keychords.h"
 #include "init_parser.h"
 #include "util.h"
 #include "ueventd.h"
@@ -114,7 +113,7 @@ void service::NotifyStateChange(const char* new_state) {
         return;
     }
 
-    property_set(prop_name, new_state);
+    //property_set(prop_name, new_state);
 }
 
 /* add_environment - add "key=value" to the current environment */
@@ -744,18 +743,9 @@ ret:
     return result;
 }
 
-static int keychord_init_action(int nargs, char **args)
-{
-    keychord_init();
-    return 0;
-}
-
 static int console_init_action(int nargs, char **args)
 {
-    std::string console = property_get("ro.boot.console");
-    if (!console.empty()) {
-        console_name = "/dev/" + console;
-    }
+    std::string console_name = "/dev/console";
 
     int fd = open(console_name.c_str(), O_RDWR | O_CLOEXEC);
     if (fd >= 0)
@@ -785,73 +775,6 @@ static int console_init_action(int nargs, char **args)
     }
 
     return 0;
-}
-
-static void import_kernel_nv(const std::string& key, const std::string& value, bool for_emulator) {
-    if (key.empty()) return;
-
-    if (for_emulator) {
-        // In the emulator, export any kernel option with the "ro.kernel." prefix.
-        property_set(android::base::StringPrintf("ro.kernel.%s", key.c_str()).c_str(), value.c_str());
-        return;
-    }
-
-    if (key == "qemu") {
-        strlcpy(qemu, value.c_str(), sizeof(qemu));
-    } else if (android::base::StartsWith(key, "androidboot.")) {
-        property_set(android::base::StringPrintf("ro.boot.%s", key.c_str() + 12).c_str(),
-                     value.c_str());
-    }
-}
-
-static void export_kernel_boot_props() {
-    struct {
-        const char *src_prop;
-        const char *dst_prop;
-        const char *default_value;
-    } prop_map[] = {
-        { "ro.boot.serialno",   "ro.serialno",   "", },
-        { "ro.boot.mode",       "ro.bootmode",   "unknown", },
-        { "ro.boot.baseband",   "ro.baseband",   "unknown", },
-        { "ro.boot.bootloader", "ro.bootloader", "unknown", },
-        { "ro.boot.hardware",   "ro.hardware",   "unknown", },
-        { "ro.boot.revision",   "ro.revision",   "0", },
-    };
-    for (size_t i = 0; i < ARRAY_SIZE(prop_map); i++) {
-        std::string value = property_get(prop_map[i].src_prop);
-        property_set(prop_map[i].dst_prop, (!value.empty()) ? value.c_str() : prop_map[i].default_value);
-    }
-}
-
-static void process_kernel_dt() {
-    static const char android_dir[] = "/proc/device-tree/firmware/android";
-
-    std::string file_name = android::base::StringPrintf("%s/compatible", android_dir);
-
-    std::string dt_file;
-    android::base::ReadFileToString(file_name, &dt_file);
-    if (!dt_file.compare("android,firmware")) {
-        ERROR("firmware/android is not compatible with 'android,firmware'\n");
-        return;
-    }
-
-    std::unique_ptr<DIR, int(*)(DIR*)>dir(opendir(android_dir), closedir);
-    if (!dir) return;
-
-    struct dirent *dp;
-    while ((dp = readdir(dir.get())) != NULL) {
-        if (dp->d_type != DT_REG || !strcmp(dp->d_name, "compatible")) {
-            continue;
-        }
-
-        file_name = android::base::StringPrintf("%s/%s", android_dir, dp->d_name);
-
-        android::base::ReadFileToString(file_name, &dt_file);
-        std::replace(dt_file.begin(), dt_file.end(), ',', '.');
-
-        std::string property_name = android::base::StringPrintf("ro.boot.%s", dp->d_name);
-        property_set(property_name.c_str(), dt_file.c_str());
-    }
 }
 
 static void process_kernel_cmdline() {
@@ -1013,12 +936,7 @@ int main(int argc, char** argv) {
 
         // If arguments are passed both on the command line and in DT,
         // properties set in DT always have priority over the command-line ones.
-        process_kernel_dt();
         process_kernel_cmdline();
-
-        // Propagate the kernel variables to internal variables
-        // used by init as well as the current required properties.
-        export_kernel_boot_props();
     }
 
     // Set up SELinux, including loading the SELinux policy if we're in the kernel domain.
@@ -1067,7 +985,7 @@ int main(int argc, char** argv) {
     queue_builtin_action(wait_for_coldboot_done_action, "wait_for_coldboot_done");
     // ... so that we can start queuing up actions that require stuff from /dev.
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
-    queue_builtin_action(keychord_init_action, "keychord_init");
+    //queue_builtin_action(keychord_init_action, "keychord_init");
     queue_builtin_action(console_init_action, "console_init");
 
     // Trigger all the boot actions to get us started.
@@ -1078,12 +996,12 @@ int main(int argc, char** argv) {
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
 
     // Don't mount filesystems or start core system services in charger mode.
-    std::string bootmode = property_get("ro.bootmode");
+    /*std::string bootmode = property_get("ro.bootmode");
     if (bootmode == "charger") {
         action_for_each_trigger("charger", action_add_queue_tail);
     } else {
         action_for_each_trigger("late-init", action_add_queue_tail);
-    }
+    }*/
 
     // Run all property triggers based on current state of the properties.
     queue_builtin_action(queue_property_triggers_action, "queue_property_triggers");
