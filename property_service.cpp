@@ -28,8 +28,8 @@
 
 #include <memory>
 
-#include <cutils/misc.h>
-#include <cutils/sockets.h>
+//#include <cutils/misc.h>
+//#include <cutils/sockets.h>
 #include "multiuser.h"
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_

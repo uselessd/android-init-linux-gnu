@@ -48,7 +48,6 @@
 #include <cutils/fs.h>
 #include "iosched_policy.h"
 #include "list.h"
-#include <cutils/sockets.h>
 #include <private/android_filesystem_config.h>
 
 #include <memory>
@@ -64,6 +63,10 @@
 #include "util.h"
 #include "ueventd.h"
 #include "watchdogd.h"
+
+/* all of <cutils/sockets.h> we need */
+#define ANDROID_SOCKET_ENV_PREFIX	"ANDROID_SOCKET_"
+#define ANDROID_SOCKET_DIR		"/dev/socket"
 
 struct selabel_handle *sehandle;
 struct selabel_handle *sehandle_prop;

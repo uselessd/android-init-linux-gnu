@@ -36,7 +36,6 @@
 #include "strings.h"
 
 /* for ANDROID_SOCKET_* */
-#include <cutils/sockets.h>
 #include "stringprintf.h"
 
 #include <private/android_filesystem_config.h>
@@ -44,6 +43,8 @@
 #include "init.h"
 #include "log.h"
 #include "util.h"
+
+#define ANDROID_SOCKET_DIR "/dev/socket"
 
 /*
  * android_name_to_id - returns the integer uid/gid associated with the given

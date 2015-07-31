@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <string.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -26,12 +27,12 @@
 #include "stringprintf.h"
 #include "android_reboot.h"
 #include "list.h"
-#include <cutils/sockets.h>
 
 #include "init.h"
 #include "log.h"
 #include "util.h"
 
+#define ANDROID_SOCKET_DIR "/dev/socket"
 #define CRITICAL_CRASH_THRESHOLD    4       /* if we crash >4 times ... */
 #define CRITICAL_CRASH_WINDOW       (4*60)  /* ... in 4 minutes, goto recovery */
 
