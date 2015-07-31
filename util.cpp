@@ -37,7 +37,7 @@
 
 /* for ANDROID_SOCKET_* */
 #include <cutils/sockets.h>
-#include <base/stringprintf.h>
+#include "stringprintf.h"
 
 #include <private/android_filesystem_config.h>
 

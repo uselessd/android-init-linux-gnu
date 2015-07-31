@@ -37,7 +37,7 @@
 #include <selinux/label.h>
 
 #include <fs_mgr.h>
-#include <base/stringprintf.h>
+#include "stringprintf.h"
 #include <cutils/partition_utils.h>
 #include <cutils/android_reboot.h>
 #include <logwrap/logwrap.h>

@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <base/stringprintf.h>
+#include "stringprintf.h"
 #include <cutils/android_reboot.h>
 #include <cutils/list.h>
 #include <cutils/sockets.h>
