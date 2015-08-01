@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #include "stringprintf.h"
 #include "ueventd.h"
@@ -86,7 +88,6 @@ void set_device_permission(int nargs, char **args)
     int prefix = 0;
     int wildcard = 0;
     char *endptr;
-    int ret;
     char *tmp = 0;
 
     if (nargs == 0)
