@@ -144,7 +144,6 @@ void service_stop(struct service *svc);
 void service_reset(struct service *svc);
 void service_restart(struct service *svc);
 void service_start(struct service *svc, const char *dynamic_args);
-void property_changed(const char *name, const char *value);
 
 void zap_stdio(void);
 

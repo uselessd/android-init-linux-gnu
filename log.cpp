@@ -23,7 +23,7 @@
 #include "stringprintf.h"
 
 static void init_klog_vwrite(int level, const char* fmt, va_list ap) {
-    static const char* tag = basename(getprogname());
+    static const char* tag = basename(program_invocation_short_name);
 
     // The kernel's printk buffer is only 1024 bytes.
     // TODO: should we automatically break up long lines into multiple lines?

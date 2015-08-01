@@ -306,7 +306,7 @@ void make_link(const char *oldpath, const char *newpath)
     char *slash;
     int width;
 
-    slash = strrchr(newpath, '/');
+    slash = (char *)strrchr(newpath, '/');
     if (!slash)
         return;
     width = slash - newpath;

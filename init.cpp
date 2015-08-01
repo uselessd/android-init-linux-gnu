@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/un.h>
 #include <sys/wait.h>
+#include <grp.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -41,7 +42,6 @@
 #include "stringprintf.h"
 #include "strings.h"
 #include "android_reboot.h"
-//#include <cutils/fs.h>
 #include "iosched_policy.h"
 #include "list.h"
 
@@ -57,16 +57,11 @@
 #include "ueventd.h"
 #include "watchdogd.h"
 
+#include "strlcpy.h"
+
 /* all of <cutils/sockets.h> we need */
 #define ANDROID_SOCKET_ENV_PREFIX	"ANDROID_SOCKET_"
 #define ANDROID_SOCKET_DIR		"/dev/socket"
-
-struct selabel_handle *sehandle;
-struct selabel_handle *sehandle_prop;
-
-static int property_triggers_enabled = 0;
-
-static char qemu[32];
 
 static struct action *cur_action = NULL;
 static struct command *cur_command = NULL;
@@ -91,24 +86,10 @@ void register_epoll_handler(int fd, void (*fn)()) {
 }
 
 void service::NotifyStateChange(const char* new_state) {
-    /*if (!properties_initialized()) {
-        // If properties aren't available yet, we can't set them.
-        return;
-    } */
-
     if ((flags & SVC_EXEC) != 0) {
         // 'exec' commands don't have properties tracking their state.
         return;
     }
-
-    char prop_name[PROP_NAME_MAX];
-    if (snprintf(prop_name, sizeof(prop_name), "init.svc.%s", name) >= PROP_NAME_MAX) {
-        // If the property name would be too long, we can't set it.
-        ERROR("Property name \"init.svc.%s\" too long; not setting to %s\n", name, new_state);
-        return;
-    }
-
-    //property_set(prop_name, new_state);
 }
 
 /* add_environment - add "key=value" to the current environment */
@@ -221,8 +202,6 @@ void service_start(struct service *svc, const char *dynamic_args)
     if (pid == 0) {
         struct socketinfo *si;
         struct svcenvinfo *ei;
-        char tmp[32];
-        int fd, sz;
 
         umask(077);
         /*if (properties_initialized()) {
@@ -239,14 +218,11 @@ void service_start(struct service *svc, const char *dynamic_args)
                     !strcmp(si->type, "stream") ? SOCK_STREAM :
                         (!strcmp(si->type, "dgram") ? SOCK_DGRAM : SOCK_SEQPACKET));
             int s = create_socket(si->name, socket_type,
-                                  si->perm, si->uid, si->gid, si->socketcon ?: scon);
+                                  si->perm, si->uid, si->gid, si->socketcon);
             if (s >= 0) {
                 publish_socket(si->name, s);
             }
         }
-
-        free(scon);
-        scon = NULL;
 
         if (svc->writepid_files_) {
             std::string pid_str = android::base::StringPrintf("%d", pid);
@@ -328,8 +304,6 @@ void service_start(struct service *svc, const char *dynamic_args)
         _exit(127);
     }
 
-    free(scon);
-
     if (pid < 0) {
         ERROR("failed to start '%s'\n", svc->name);
         svc->pid = 0;
@@ -342,7 +316,7 @@ void service_start(struct service *svc, const char *dynamic_args)
 
     if ((svc->flags & SVC_EXEC) != 0) {
         INFO("SVC_EXEC pid %d (uid %d gid %d+%zu) started; waiting...\n",
-             svc->pid, svc->uid, svc->gid, svc->nr_supp_gids ? : "default");
+             svc->pid, svc->uid, svc->gid, svc->nr_supp_gids);
         waiting_for_exec = true;
     }
 
@@ -397,12 +371,6 @@ void service_restart(struct service *svc)
         /* Just start the service since it's not running. */
         service_start(svc, NULL);
     } /* else: Service is restarting anyways. */
-}
-
-void property_changed(const char *name, const char *value)
-{
-    if (property_triggers_enabled)
-        queue_property_triggers(name, value);
 }
 
 static void restart_service_if_needed(struct service *svc)
@@ -728,19 +696,7 @@ static void process_kernel_cmdline() {
     // Don't expose the raw commandline to unprivileged processes.
     chmod("/proc/cmdline", 0440);
 
-    // The first pass does the common stuff, and finds if we are in qemu.
-    // The second pass is only necessary for qemu to export all kernel params
-    // as properties.
     import_kernel_cmdline(false, import_kernel_nv);
-    if (qemu[0]) import_kernel_cmdline(true, import_kernel_nv);
-}
-
-static int queue_property_triggers_action(int nargs, char **args)
-{
-    //queue_all_property_triggers();
-    /* enable property triggers */
-    property_triggers_enabled = 1;
-    return 0;
 }
 
 int main(int argc, char** argv) {
@@ -838,9 +794,6 @@ int main(int argc, char** argv) {
     } else {
         action_for_each_trigger("late-init", action_add_queue_tail);
     }*/
-
-    // Run all property triggers based on current state of the properties.
-    queue_builtin_action(queue_property_triggers_action, "queue_property_triggers");
 
     while (true) {
         if (!waiting_for_exec) {

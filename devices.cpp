@@ -42,6 +42,8 @@
 #include "util.h"
 #include "log.h"
 
+#define PAGE_SIZE 4096 // blech
+
 #define SYSFS_PREFIX    "/sys"
 static const char *firmware_dirs[] = { "/etc/firmware",
                                        "/vendor/firmware",
@@ -371,12 +373,6 @@ static void parse_event(const char *msg, struct uevent *uevent)
         while(*msg++)
             ;
     }
-
-    if (LOG_UEVENTS) {
-        INFO("event { '%s', '%s', '%s', '%s', %d, %d }\n",
-             uevent->action, uevent->path, uevent->subsystem,
-             uevent->firmware, uevent->major, uevent->minor);
-    }
 }
 
 static char **get_character_device_symlinks(struct uevent *uevent)
@@ -409,7 +405,7 @@ static char **get_character_device_symlinks(struct uevent *uevent)
             while (*++parent && *parent != '/');
         if (!*parent)
             goto err;
-        slash = strchr(++parent, '/');
+        slash = (char *)strchr(++parent, '/');
         if (!slash)
             goto err;
         width = slash - parent;
@@ -482,7 +478,7 @@ static char **get_block_device_symlinks(struct uevent *uevent)
             links[link_num] = NULL;
     }
 
-    slash = strrchr(uevent->path, '/');
+    slash = (char *)strrchr(uevent->path, '/');
     if (asprintf(&links[link_num], "%s/%s", link_path, slash + 1) > 0)
         link_num++;
     else
