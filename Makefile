@@ -1,5 +1,6 @@
 CC=g++
 CFLAGS=-Wall -Wextra -Wno-unused-parameter -Wno-write-strings \
+		 -Wno-missing-field-initializers \
 		 -std=c++11
 LDLIBS=-lpthread -lrt
     
