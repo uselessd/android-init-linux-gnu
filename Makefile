@@ -16,9 +16,25 @@ INIT_OBJS = $(SRCS:.c=.o)
 
 INIT_MAIN = init
        
-all: default
+all: init ueventd watchdogd
 
-default: $(OBJS) 
+init: $(OBJS)
+	@echo "Building init."
 	$(CC) $(CFLAGS) $(INIT_SRCS) $(UTIL_SRCS) \
 	-o $(INIT_MAIN) $(INIT_OBJS) \
 	$(LDLIBS)
+	
+ueventd: $(OBJS)
+	@echo "Building ueventd, which is hooked to argv[0] of init."
+	$(CC) $(CFLAGS) $(INIT_SRCS) $(UTIL_SRCS) \
+	-o ueventd $(INIT_OBJS) \
+	$(LDLIBS)
+
+watchdogd: $(OBJS)
+	@echo "Building watchdogd, which is hooked to argv[0] of init."
+	$(CC) $(CFLAGS) $(INIT_SRCS) $(UTIL_SRCS) \
+	-o watchdogd $(INIT_OBJS) \
+	$(LDLIBS)
+	
+clean:
+	rm -f init watchdogd ueventd
