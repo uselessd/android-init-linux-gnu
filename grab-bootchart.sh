@@ -8,7 +8,7 @@ TMPDIR=/tmp/android-bootchart
 rm -rf $TMPDIR
 mkdir -p $TMPDIR
 
-LOGROOT=/data/bootchart
+LOGROOT=/etc/bootchart
 TARBALL=bootchart.tgz
 
 FILES="header proc_stat.log proc_ps.log proc_diskstats.log kernel_pacct"
@@ -18,5 +18,5 @@ for f in $FILES; do
 done
 (cd $TMPDIR && tar -czf $TARBALL $FILES)
 bootchart ${TMPDIR}/${TARBALL}
-gnome-open ${TARBALL%.tgz}.png
+xdg-open ${TARBALL%.tgz}.png
 echo "Clean up ${TMPDIR}/ and ./${TARBALL%.tgz}.png when done"
