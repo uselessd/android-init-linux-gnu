@@ -505,12 +505,7 @@ bool expand_command_arguments(int nargs, char** args, std::vector<std::string>* 
     std::vector<std::string>& strs = *expanded_args;
     strs.resize(nargs);
     strs[0] = args[0];
-    for (int i = 1; i < nargs; ++i) {
-        if (expand_props(args[i], &strs[i]) == -1) {
-            ERROR("%s: cannot expand '%s'\n", args[0], args[i]);
-            return false;
-        }
-    }
+
     return true;
 }
 
