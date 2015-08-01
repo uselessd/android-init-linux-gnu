@@ -20,9 +20,7 @@
 #include <string.h>
 #include <sys/uio.h>
 
-#include <selinux/selinux.h>
-
-#include <base/stringprintf.h>
+#include "stringprintf.h"
 
 static void init_klog_vwrite(int level, const char* fmt, va_list ap) {
     static const char* tag = basename(getprogname());
@@ -50,18 +48,4 @@ void init_klog_write(int level, const char* fmt, ...) {
     va_start(ap, fmt);
     init_klog_vwrite(level, fmt, ap);
     va_end(ap);
-}
-
-int selinux_klog_callback(int type, const char *fmt, ...) {
-    int level = KLOG_ERROR_LEVEL;
-    if (type == SELINUX_WARNING) {
-        level = KLOG_WARNING_LEVEL;
-    } else if (type == SELINUX_INFO) {
-        level = KLOG_INFO_LEVEL;
-    }
-    va_list ap;
-    va_start(ap, fmt);
-    init_klog_vwrite(level, fmt, ap);
-    va_end(ap);
-    return 0;
 }

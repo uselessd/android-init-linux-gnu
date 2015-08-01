@@ -181,7 +181,7 @@ static int lookup_keyword(const char *s)
         if (!strcmp(s, "m")) return K_rm;
         break;
     case 's':
-        if (!strcmp(s, "eclabel")) return K_seclabel;
+        //if (!strcmp(s, "eclabel")) return K_seclabel;
         if (!strcmp(s, "ervice")) return K_service;
         if (!strcmp(s, "etenv")) return K_setenv;
         //if (!strcmp(s, "etprop")) return K_setprop;
@@ -530,9 +530,6 @@ service* make_exec_oneshot_service(int nargs, char** args) {
         return NULL;
     }
 
-    if ((command_arg > 2) && strcmp(args[1], "-")) {
-        svc->seclabel = args[1];
-    }
     if (command_arg > 3) {
         svc->uid = decode_uid(args[2]);
     }
@@ -740,13 +737,6 @@ static void parse_line_service(struct parse_state *state, int nargs, char **args
             parse_error(state, "user option requires a user id\n");
         } else {
             svc->uid = decode_uid(args[1]);
-        }
-        break;
-    case K_seclabel:
-        if (nargs != 2) {
-            parse_error(state, "seclabel option requires a label string\n");
-        } else {
-            svc->seclabel = args[1];
         }
         break;
     case K_writepid:

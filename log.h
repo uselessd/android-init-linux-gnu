@@ -27,6 +27,5 @@
 #define VERBOSE(x...) init_klog_write(KLOG_DEBUG_LEVEL, x)
 
 void init_klog_write(int level, const char* fmt, ...);
-int selinux_klog_callback(int level, const char* fmt, ...);
 
 #endif

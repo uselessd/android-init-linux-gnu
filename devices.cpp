@@ -31,11 +31,6 @@
 #include <sys/un.h>
 #include <linux/netlink.h>
 
-#include <selinux/selinux.h>
-#include <selinux/label.h>
-#include <selinux/android.h>
-#include <selinux/avc.h>
-
 #include <sys/time.h>
 #include <sys/wait.h>
 
@@ -51,8 +46,6 @@
 static const char *firmware_dirs[] = { "/etc/firmware",
                                        "/vendor/firmware",
                                        "/firmware/image" };
-
-extern struct selabel_handle *sehandle;
 
 static int device_fd = -1;
 
@@ -156,17 +149,6 @@ void fixup_sys_perms(const char *upath)
         chown(buf, dp->uid, dp->gid);
         chmod(buf, dp->perm);
     }
-
-    // Now fixup SELinux file labels
-    int len = snprintf(buf, sizeof(buf), "/sys%s", upath);
-    if ((len < 0) || ((size_t) len >= sizeof(buf))) {
-        // Overflow
-        return;
-    }
-    if (access(buf, F_OK) == 0) {
-        INFO("restorecon_recursive: %s\n", buf);
-        restorecon_recursive(buf);
-    }
 }
 
 static bool perm_path_matches(const char *path, struct perms_ *dp)
@@ -236,12 +218,8 @@ static void make_device(const char *path,
     unsigned gid;
     mode_t mode;
     dev_t dev;
-    char *secontext = NULL;
 
     mode = get_device_perm(path, links, &uid, &gid) | (block ? S_IFBLK : S_IFCHR);
-
-    selabel_lookup_best_match(sehandle, &secontext, path, links, mode);
-    setfscreatecon(secontext);
 
     dev = makedev(major, minor);
     /* Temporarily change egid to avoid race condition setting the gid of the
@@ -253,11 +231,6 @@ static void make_device(const char *path,
     mknod(path, mode, dev);
     chown(path, uid, -1);
     setegid(0); // AID_ROOT
-
-    if (secontext) {
-        freecon(secontext);
-        setfscreatecon(NULL);
-    }
 }
 
 static void add_platform_device(const char *path)
@@ -904,15 +877,6 @@ void handle_device_fd()
         struct uevent uevent;
         parse_event(msg, &uevent);
 
-        if (selinux_status_updated() > 0) {
-            struct selabel_handle *sehandle2;
-            sehandle2 = selinux_android_file_context_handle();
-            if (sehandle2) {
-                selabel_close(sehandle);
-                sehandle = sehandle2;
-            }
-        }
-
         handle_device_event(&uevent);
         handle_firmware_event(&uevent);
     }
@@ -971,9 +935,6 @@ static void coldboot(const char *path)
 }
 
 void device_init() {
-    sehandle = selinux_android_file_context_handle();
-    selinux_status_open(true);
-
     /* is 256K enough? udev uses 16MB! */
     device_fd = uevent_open_socket(256*1024, true);
     if (device_fd == -1) {

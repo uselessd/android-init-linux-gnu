@@ -32,9 +32,6 @@
 #include <unistd.h>
 #include <linux/loop.h>
 
-#include <selinux/selinux.h>
-#include <selinux/label.h>
-
 #include "fs_mgr.h"
 #include "stringprintf.h"
 #include "partition_utils.h"
@@ -47,6 +44,8 @@
 #include "init_parser.h"
 #include "util.h"
 #include "log.h"
+
+#include "strlcpy.h"
 
 #define chmod DO_NOT_USE_CHMOD_USE_FCHMODAT_SYMLINK_NOFOLLOW
 #define UNMOUNT_CHECK_MS 5000
@@ -303,7 +302,7 @@ int do_mkdir(int nargs, char **args)
         }
     }
 
-    return e4crypt_set_directory_policy(args[1]);
+    return 0;
 }
 
 static struct {
@@ -604,15 +603,6 @@ int do_sysclktz(int nargs, char **args)
     return 0;
 }
 
-int do_verity_load_state(int nargs, char **args) {
-    int mode = -1;
-    int rc = fs_mgr_load_verity_state(&mode);
-    if (rc == 0 && mode == VERITY_MODE_LOGGING) {
-        action_for_each_trigger("verity-logging", action_add_queue_tail);
-    }
-    return rc;
-}
-
 int do_write(int nargs, char **args)
 {
     const char *path = args[1];
@@ -717,28 +707,6 @@ int do_chmod(int nargs, char **args) {
     return 0;
 }
 
-int do_restorecon(int nargs, char **args) {
-    int i;
-    int ret = 0;
-
-    for (i = 1; i < nargs; i++) {
-        if (restorecon(args[i]) < 0)
-            ret = -errno;
-    }
-    return ret;
-}
-
-int do_restorecon_recursive(int nargs, char **args) {
-    int i;
-    int ret = 0;
-
-    for (i = 1; i < nargs; i++) {
-        if (restorecon_recursive(args[i]) < 0)
-            ret = -errno;
-    }
-    return ret;
-}
-
 int do_loglevel(int nargs, char **args) {
     if (nargs != 2) {
         ERROR("loglevel: missing argument\n");
@@ -752,22 +720,6 @@ int do_loglevel(int nargs, char **args) {
     }
     klog_set_level(log_level);
     return 0;
-}
-
-int do_load_persist_props(int nargs, char **args) {
-    if (nargs == 1) {
-        load_persist_props();
-        return 0;
-    }
-    return -1;
-}
-
-int do_load_all_props(int nargs, char **args) {
-    if (nargs == 1) {
-        load_all_props();
-        return 0;
-    }
-    return -1;
 }
 
 int do_wait(int nargs, char **args)

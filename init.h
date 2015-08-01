@@ -27,7 +27,7 @@
 
 struct command
 {
-        /* list of commands in an action */
+    /* list of commands in an action */
     struct listnode clist;
 
     int (*func)(int nargs, char **args);
@@ -112,8 +112,6 @@ struct service {
     gid_t supp_gids[NR_SVC_SUPP_GIDS];
     size_t nr_supp_gids;
 
-    const char* seclabel;
-
     struct socketinfo *sockets;
     struct svcenvinfo *envvars;
 
@@ -130,8 +128,6 @@ struct service {
 }; /*     ^-------'args' MUST be at the end of this struct! */
 
 extern bool waiting_for_exec;
-extern struct selabel_handle *sehandle;
-extern struct selabel_handle *sehandle_prop;
 
 std::string build_triggers_string(struct action *cur_action);
 
@@ -149,8 +145,6 @@ void service_reset(struct service *svc);
 void service_restart(struct service *svc);
 void service_start(struct service *svc, const char *dynamic_args);
 void property_changed(const char *name, const char *value);
-
-int selinux_reload_policy(void);
 
 void zap_stdio(void);
 
