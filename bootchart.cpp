@@ -34,7 +34,7 @@
 
 #include "file.h"
 
-#define LOG_ROOT        "/data/bootchart"
+#define LOG_ROOT        "/etc/bootchart"
 #define LOG_STAT        LOG_ROOT"/proc_stat.log"
 #define LOG_PROCS       LOG_ROOT"/proc_ps.log"
 #define LOG_DISK        LOG_ROOT"/proc_diskstats.log"
