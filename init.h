@@ -121,11 +121,6 @@ struct service {
 
     std::vector<std::string>* writepid_files_;
 
-    /* keycodes for triggering this service via /dev/keychord */
-    int *keycodes;
-    int nkeycodes;
-    int keychord_id;
-
     IoSchedClass ioprio_class;
     int ioprio_pri;
 
@@ -144,7 +139,6 @@ void handle_control_message(const char *msg, const char *arg);
 
 struct service *service_find_by_name(const char *name);
 struct service *service_find_by_pid(pid_t pid);
-struct service *service_find_by_keychord(int keychord_id);
 void service_for_each(void (*func)(struct service *svc));
 void service_for_each_class(const char *classname,
                             void (*func)(struct service *svc));

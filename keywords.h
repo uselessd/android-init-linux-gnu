@@ -65,7 +65,7 @@ enum {
     KEYWORD(insmod,      COMMAND, 1, do_insmod)
     //KEYWORD(installkey,  COMMAND, 1, do_installkey)
     KEYWORD(ioprio,      OPTION,  0, 0)
-    KEYWORD(keycodes,    OPTION,  0, 0)
+    //KEYWORD(keycodes,    OPTION,  0, 0)
     KEYWORD(load_all_props,        COMMAND, 0, do_load_all_props)
     KEYWORD(load_persist_props,    COMMAND, 0, do_load_persist_props)
     KEYWORD(loglevel,    COMMAND, 1, do_loglevel)

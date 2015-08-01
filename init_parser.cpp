@@ -155,9 +155,6 @@ static int lookup_keyword(const char *s)
         if (!strcmp(s, "mport")) return K_import;
         //if (!strcmp(s, "nstallkey")) return K_installkey;
         break;
-    case 'k':
-        if (!strcmp(s, "eycodes")) return K_keycodes;
-        break;
     case 'l':
         if (!strcmp(s, "oglevel")) return K_loglevel;
         //if (!strcmp(s, "oad_persist_props")) return K_load_persist_props;
@@ -406,19 +403,6 @@ struct service *service_find_by_pid(pid_t pid)
     return 0;
 }
 
-struct service *service_find_by_keychord(int keychord_id)
-{
-    struct listnode *node;
-    struct service *svc;
-    list_for_each(node, &service_list) {
-        svc = node_to_item(node, struct service, slist);
-        if (svc->keychord_id == keychord_id) {
-            return svc;
-        }
-    }
-    return 0;
-}
-
 void service_for_each(void (*func)(struct service *svc))
 {
     struct listnode *node;
@@ -619,7 +603,7 @@ static void parse_line_service(struct parse_state *state, int nargs, char **args
 {
     struct service *svc = (service*) state->context;
     struct command *cmd;
-    int i, kw, kw_nargs;
+    int kw, kw_nargs;
 
     if (nargs == 0) {
         return;
@@ -678,21 +662,6 @@ static void parse_line_service(struct parse_state *state, int nargs, char **args
                 svc->supp_gids[n-2] = decode_uid(args[n]);
             }
             svc->nr_supp_gids = n - 2;
-        }
-        break;
-    case K_keycodes:
-        if (nargs < 2) {
-            parse_error(state, "keycodes option requires atleast one keycode\n");
-        } else {
-            svc->keycodes = (int*) malloc((nargs - 1) * sizeof(svc->keycodes[0]));
-            if (!svc->keycodes) {
-                parse_error(state, "could not allocate keycodes\n");
-            } else {
-                svc->nkeycodes = nargs - 1;
-                for (i = 1; i < nargs; i++) {
-                    svc->keycodes[i - 1] = atoi(args[i]);
-                }
-            }
         }
         break;
     case K_oneshot:
