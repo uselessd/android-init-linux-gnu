@@ -153,13 +153,13 @@ static void unmount_and_fsck(const struct mntent *entry)
     int st;
     if (!strcmp(entry->mnt_type, "f2fs")) {
         const char *f2fs_argv[] = {
-            "/system/bin/fsck.f2fs", "-f", entry->mnt_fsname,
+            "/sbin/fsck.f2fs", "-f", entry->mnt_fsname,
         };
         android_fork_execvp_ext(ARRAY_SIZE(f2fs_argv), (char **)f2fs_argv,
                                 &st, true, LOG_KLOG, true, NULL);
     } else if (!strcmp(entry->mnt_type, "ext4")) {
         const char *ext4_argv[] = {
-            "/system/bin/e2fsck", "-f", "-y", entry->mnt_fsname,
+            "/sbin/e2fsck", "-f", "-y", entry->mnt_fsname,
         };
         android_fork_execvp_ext(ARRAY_SIZE(ext4_argv), (char **)ext4_argv,
                                 &st, true, LOG_KLOG, true, NULL);
@@ -327,8 +327,6 @@ static struct {
     { "defaults",   0 },
     { 0,            0 },
 };
-
-#define DATA_MNT_POINT "/data"
 
 /* mount <type> <device> <path> <flags ...> <options> */
 int do_mount(int nargs, char **args)
