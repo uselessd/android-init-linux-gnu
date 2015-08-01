@@ -692,6 +692,10 @@ static int console_init_action(int nargs, char **args)
     return 0;
 }
 
+static void import_kernel_nv(const std::string& key, const std::string& value, bool for_emulator) {
+    return;
+}
+
 static void process_kernel_cmdline() {
     // Don't expose the raw commandline to unprivileged processes.
     chmod("/proc/cmdline", 0440);
