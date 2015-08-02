@@ -13,8 +13,8 @@ INIT_SRCS = bootchart.cpp builtins.cpp devices.cpp init.cpp init_parser.cpp \
 				ueventd_parser.cpp ueventd.cpp
 
 UTIL_SRCS = klog.cpp stringprintf.cpp file.cpp strings.cpp android_reboot.cpp \
-				partition_utils.cpp iosched_policy.cpp multiuser.cpp uevent.cpp \
-				fs_mgr.cpp fs_mgr_fstab.cpp strlcat.cpp strlcpy.cpp logwrap.cpp
+				iosched_policy.cpp multiuser.cpp uevent.cpp fs_mgr.cpp \
+				fs_mgr_fstab.cpp strlcat.cpp strlcpy.cpp logwrap.cpp
 
 TEST_SRCS = init_parser_test.cpp util_test.cpp
 
