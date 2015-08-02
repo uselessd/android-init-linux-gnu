@@ -34,7 +34,6 @@
 
 #include "fs_mgr.h"
 #include "stringprintf.h"
-#include "partition_utils.h"
 #include "android_reboot.h"
 #include "logwrap.h"
 
