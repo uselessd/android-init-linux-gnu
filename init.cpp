@@ -63,6 +63,8 @@
 #define ANDROID_SOCKET_ENV_PREFIX	"ANDROID_SOCKET_"
 #define ANDROID_SOCKET_DIR		"/dev/socket"
 
+#define _PATH_DEFPATH "/sbin:/usr/sbin:/bin:/usr/bin"
+
 static struct action *cur_action = NULL;
 static struct command *cur_command = NULL;
 
