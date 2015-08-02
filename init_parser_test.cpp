@@ -42,14 +42,13 @@ TEST(init_parser, make_exec_oneshot_service_too_many_supplementary_gids) {
     int argc = 0;
     char* argv[4 + NR_SVC_SUPP_GIDS + 3];
     argv[argc++] = const_cast<char*>("exec");
-    argv[argc++] = const_cast<char*>("seclabel");
     argv[argc++] = const_cast<char*>("root"); // uid.
     argv[argc++] = const_cast<char*>("root"); // gid.
     for (int i = 0; i < NR_SVC_SUPP_GIDS; ++i) {
         argv[argc++] = const_cast<char*>("root"); // Supplementary gid.
     }
     argv[argc++] = const_cast<char*>("--");
-    argv[argc++] = const_cast<char*>("/system/bin/id");
+    argv[argc++] = const_cast<char*>("/bin/id");
     argv[argc] = nullptr;
     ASSERT_EQ(nullptr, make_exec_oneshot_service(argc, argv));
 }
@@ -58,8 +57,6 @@ static void Test_make_exec_oneshot_service(bool dash_dash, bool seclabel, bool u
     int argc = 0;
     char* argv[10];
     argv[argc++] = const_cast<char*>("exec");
-    if (seclabel) {
-        argv[argc++] = const_cast<char*>("u:r:su:s0"); // seclabel
         if (uid) {
             argv[argc++] = const_cast<char*>("log");      // uid
             if (gid) {
@@ -70,21 +67,15 @@ static void Test_make_exec_oneshot_service(bool dash_dash, bool seclabel, bool u
                 }
             }
         }
-    }
     if (dash_dash) {
         argv[argc++] = const_cast<char*>("--");
     }
-    argv[argc++] = const_cast<char*>("/system/bin/toybox");
+    argv[argc++] = const_cast<char*>("/bin/ls");
     argv[argc++] = const_cast<char*>("id");
     argv[argc] = nullptr;
     service* svc = make_exec_oneshot_service(argc, argv);
     ASSERT_NE(nullptr, svc);
 
-    if (seclabel) {
-        ASSERT_STREQ("u:r:su:s0", svc->seclabel);
-    } else {
-        ASSERT_EQ(nullptr, svc->seclabel);
-    }
     if (uid) {
         ASSERT_EQ(decode_uid("log"), svc->uid);
     } else {
@@ -104,7 +95,7 @@ static void Test_make_exec_oneshot_service(bool dash_dash, bool seclabel, bool u
     }
 
     ASSERT_EQ(2, svc->nargs);
-    ASSERT_EQ("/system/bin/toybox", svc->args[0]);
+    ASSERT_EQ("/bin/ls", svc->args[0]);
     ASSERT_EQ("id", svc->args[1]);
     ASSERT_EQ(nullptr, svc->args[2]);
 }
