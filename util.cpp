@@ -48,8 +48,6 @@ static unsigned int do_decode_uid(const char *s)
 
     if (!s || *s == '\0')
         return UINT_MAX;
-    //if (isalpha(s[0]))
-        //return android_name_to_id(s);
 
     errno = 0;
     v = (unsigned int) strtoul(s, 0, 0);

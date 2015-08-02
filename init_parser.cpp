@@ -153,12 +153,9 @@ static int lookup_keyword(const char *s)
         if (!strcmp(s, "fup")) return K_ifup;
         if (!strcmp(s, "nsmod")) return K_insmod;
         if (!strcmp(s, "mport")) return K_import;
-        //if (!strcmp(s, "nstallkey")) return K_installkey;
         break;
     case 'l':
         if (!strcmp(s, "oglevel")) return K_loglevel;
-        //if (!strcmp(s, "oad_persist_props")) return K_load_persist_props;
-        //if (!strcmp(s, "oad_all_props")) return K_load_all_props;
         break;
     case 'm':
         if (!strcmp(s, "kdir")) return K_mkdir;
@@ -175,16 +172,12 @@ static int lookup_keyword(const char *s)
         break;
     case 'r':
         if (!strcmp(s, "estart")) return K_restart;
-        //if (!strcmp(s, "estorecon")) return K_restorecon;
-        //if (!strcmp(s, "estorecon_recursive")) return K_restorecon_recursive;
         if (!strcmp(s, "mdir")) return K_rmdir;
         if (!strcmp(s, "m")) return K_rm;
         break;
     case 's':
-        //if (!strcmp(s, "eclabel")) return K_seclabel;
         if (!strcmp(s, "ervice")) return K_service;
         if (!strcmp(s, "etenv")) return K_setenv;
-        //if (!strcmp(s, "etprop")) return K_setprop;
         if (!strcmp(s, "etrlimit")) return K_setrlimit;
         if (!strcmp(s, "ocket")) return K_socket;
         if (!strcmp(s, "tart")) return K_start;
@@ -198,10 +191,6 @@ static int lookup_keyword(const char *s)
         break;
     case 'u':
         if (!strcmp(s, "ser")) return K_user;
-        break;
-    case 'v':
-        //if (!strcmp(s, "erity_load_state")) return K_verity_load_state;
-        //if (!strcmp(s, "erity_update_state")) return K_verity_update_state;
         break;
     case 'w':
         if (!strcmp(s, "rite")) return K_write;

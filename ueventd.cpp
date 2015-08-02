@@ -53,9 +53,7 @@ int ueventd_main(int argc, char **argv)
 
     NOTICE("ueventd started!\n");
 
-    //std::string hardware = property_get("ro.hardware");
-
-    ueventd_parse_config_file("/ueventd.rc");
+    ueventd_parse_config_file("/etc/ueventd.rc");
     //ueventd_parse_config_file(android::base::StringPrintf("/ueventd.%s.rc", hardware.c_str()).c_str());
 
     device_init();

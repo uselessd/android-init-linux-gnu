@@ -765,10 +765,7 @@ int main(int argc, char** argv) {
 
     signal_handler_init();
 
-    //property_load_boot_defaults();
-    //start_property_service();
-
-    init_parse_config("/init.rc");
+    init_parse_config("/etc/init.rc");
 
     action_for_each_trigger("early-init", action_add_queue_tail);
 
@@ -776,7 +773,6 @@ int main(int argc, char** argv) {
     queue_builtin_action(wait_for_coldboot_done_action, "wait_for_coldboot_done");
     // ... so that we can start queuing up actions that require stuff from /dev.
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
-    //queue_builtin_action(keychord_init_action, "keychord_init");
     queue_builtin_action(console_init_action, "console_init");
 
     // Trigger all the boot actions to get us started.
@@ -785,14 +781,6 @@ int main(int argc, char** argv) {
     // Repeat mix_hwrng_into_linux_rng in case /dev/hw_random or /dev/random
     // wasn't ready immediately after wait_for_coldboot_done
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
-
-    // Don't mount filesystems or start core system services in charger mode.
-    /*std::string bootmode = property_get("ro.bootmode");
-    if (bootmode == "charger") {
-        action_for_each_trigger("charger", action_add_queue_tail);
-    } else {
-        action_for_each_trigger("late-init", action_add_queue_tail);
-    }*/
 
     while (true) {
         if (!waiting_for_exec) {
