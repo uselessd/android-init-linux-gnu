@@ -1,0 +1,134 @@
+# Android init.rc file for a Slackware Linux 14.1 system
+
+on early-init
+   loglevel 3
+   export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+   export LANG=C
+
+on boot
+   hostname vezzy
+   domainname erosion
+
+   # RTC tick rate
+   sysctltkz 10000
+
+   exec -- /sbin/hwclock --hctosys
+   exec -- /sbin/swapon -a
+   rm /etc/mtab
+   symlink /proc/mtab /etc/mtab
+   
+   # kmods
+   exec -- /sbin/depmod -A
+   insmod parport_pc
+   insmod lp
+   insmod agpgart
+   insmod loop
+
+   mount tmpfs cgroup_root /sys/fs/cgroup mode=0750,uid=0,gid=1000
+   mount tmpfs none /run mode=0755
+   
+   # Create location for fs_mgr to store abbreviated output from filesystem
+   # checker programs.
+   mkdir /dev/fscklogs 0770 root system
+   
+   exec -- /sbin/sysctl -e -p /etc/sysctl.conf
+   
+   # new utmp entry
+   exec -- /bin/touch /var/run/utmp
+   chown root:utmp /var/run/utmp
+   chmod 664 /var/run/utmp
+   
+   chmod 664 /var/log/dmesg
+   
+   rm /etc/nologin
+   
+   mount_all /etc/fstab
+   
+   # entropy pool
+   exec -- /bin/cat /etc/random-seed > /dev/urandom
+   exec -- /usr/bin/dd if=/dev/urandom of=/etc/random-seed count=1 bs=512 2> /dev/null
+   chmod 600 /etc/random-seed
+   
+   # services
+   class_start core
+   class_start network
+   class_start jobs
+   class_start gettys
+
+service syslogd /usr/sbin/syslogd -a -d /var/log 
+   class core
+   onrestart restart klogd
+
+service klogd /usr/sbin/klogd -c 3 -x
+   class core
+
+service bring-up-network-interfaces /etc/rc.d/rc.inet1 start
+   class network
+   oneshot
+   
+service port-forwarding /etc/rc.d/rc.ip_forward start
+   class network
+   oneshot
+   
+service inetd /usr/sbin/inetd
+   class network
+   
+service acpid /usr/sbin/acpid
+   class core
+   
+service crond /usr/sbin/crond -l notice
+   class core
+
+service atd /usr/sbin/atd -b 15 -l 1
+   class core
+   
+service dbus-uuidgen /usr/bin/dbus-uuidgen --ensure
+   class jobs
+   oneshot
+
+service dbus-system /usr/bin/dbus-daemon --system
+   class core
+   
+service httpd /usr/sbin/apachectl -k start
+   class core
+
+service update-so-links /sbin/ldconfig
+   class jobs
+   oneshot
+
+service update-font-cache /usr/bin/fc-cache -f &
+   class jobs
+   oneshot
+   
+service gpm /usr/sbin/gpm -m /dev/mouse -t ps2
+   class core
+   
+service load-alsa-mixing /usr/sbin/alsactl restore
+   class jobs
+   oneshot
+   
+service update-mime-database /usr/bin/update-mime-database /usr/share/mime
+   class jobs
+   oneshot
+   
+service rc-local /etc/rc.d/rc.local
+   class jobs
+   oneshot
+   
+service pulseaudio /usr/bin/pulseaudio --start --log-target syslog
+   class core
+
+service getty1 /sbin/agetty --noclear 38400 tty1 linux
+   class gettys
+
+service getty2 /sbin/agetty 38400 tty2 linux
+   class gettys
+
+service getty3 /sbin/agetty 38400 tty3 linux
+   class gettys
+
+service getty4 /sbin/agetty 38400 tty4 linux
+   class gettys
+
+service getty5 /sbin/agetty 38400 tty5 linux
+   class gettys

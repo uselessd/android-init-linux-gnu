@@ -20,9 +20,9 @@ TEST_SRCS = init_parser_test.cpp util_test.cpp
 
 INIT_OBJS = $(SRCS:.c=.o)
 
-INIT_MAIN = init
+INIT_MAIN = android-init
        
-all: init ueventd watchdogd tests
+all: init ueventd watchdogd
 
 init: $(OBJS)
 	@echo "Building init."

@@ -729,9 +729,9 @@ int main(int argc, char** argv) {
     // kmsg and null, otherwise we won't be able to remount / read-only
     // later on. Now that tmpfs is mounted on /dev, we can actually talk
     // to the outside world.
-    open_devnull_stdio();
+    //open_devnull_stdio();
     klog_init();
-    klog_set_level(KLOG_NOTICE_LEVEL);
+    klog_set_level(KLOG_DEBUG_LEVEL);
 
     NOTICE("init %s started!\n", is_first_stage ? "first stage" : "second stage");
 
@@ -781,6 +781,12 @@ int main(int argc, char** argv) {
     // Repeat mix_hwrng_into_linux_rng in case /dev/hw_random or /dev/random
     // wasn't ready immediately after wait_for_coldboot_done
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
+    
+    system("/sbin/agetty --noclear 38400 linux tty1");
+    system("/sbin/agetty 38400 linux tty2");
+    system("/sbin/agetty 38400 linux tty3");
+    system("/sbin/agetty 38400 linux tty4");
+    system("/sbin/agetty 38400 linux tty5");
 
     while (true) {
         if (!waiting_for_exec) {
