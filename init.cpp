@@ -781,12 +781,6 @@ int main(int argc, char** argv) {
     // Repeat mix_hwrng_into_linux_rng in case /dev/hw_random or /dev/random
     // wasn't ready immediately after wait_for_coldboot_done
     queue_builtin_action(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
-    
-    system("/sbin/agetty --noclear 38400 linux tty1");
-    system("/sbin/agetty 38400 linux tty2");
-    system("/sbin/agetty 38400 linux tty3");
-    system("/sbin/agetty 38400 linux tty4");
-    system("/sbin/agetty 38400 linux tty5");
 
     while (true) {
         if (!waiting_for_exec) {
